@@ -1,0 +1,52 @@
+.cm-scroller {
+	font-family: "Source Code Pro", monospace !important;
+	font-size: 14px;
+	outline: none;
+	height: 100%;
+}
+
+.cm-scroller:focus {
+	outline: none;
+}
+
+.ͼ2 .cm-gutters {
+	background-color: transparent;
+	border-right: none;
+}
+
+.ͼ2 .cm-activeLine {
+	padding-left: 10px;
+}
+
+.cm-gutterElement > span {
+	display: none;
+}
+
+.ͼ4 .cm-line {
+	padding-left: 18px;
+}
+
+.ͼ1.cm-editor {
+	height: 100%;
+}
+
+.ͼ1.cm-editor.cm-focused {
+	outline: none;
+}
+
+.cm-content {
+	height: 100%;
+}
+
+.cm-theme {
+	height: 100%;
+}
+
+img {
+	max-width: 100%;
+	border-radius: 8px;
+}
+
+.cm-lineNumbers {
+	padding-left: 6px;
+}

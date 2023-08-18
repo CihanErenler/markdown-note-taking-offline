@@ -1,0 +1,15 @@
+.split-flex {
+	display: flex;
+	flex-direction: row;
+}
+
+.gutter.gutter-horizontal {
+	cursor: ew-resize;
+	width: 5px !important;
+	transition: all 0.3s ease;
+	background-color: #e3e0e0;
+}
+
+.gutter.gutter-horizontal:hover {
+	background-color: #9BBDF9;
+}
