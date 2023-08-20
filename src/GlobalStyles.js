@@ -9,6 +9,7 @@ const GlobalStyles = createGlobalStyle`
 
 	html, body {
 		font-family: "Poppins", sans-serif;
+		scroll-behavior: smooth;
 	}
 `;
 

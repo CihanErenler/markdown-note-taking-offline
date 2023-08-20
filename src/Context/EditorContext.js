@@ -27,6 +27,8 @@ import reducer, {
   SET_FOLDER_OPTIONS,
   SET_FILE_OPTIONS,
   TOGGLE_TAG_FILTER,
+  SET_PERCENTAGE,
+  SET_SCROLLING_VIEW,
 } from "../Reducers/EditorReducer";
 import { UPDATE_CODE } from "../Reducers/EditorReducer";
 import { v4 as uuidv4 } from "uuid";
@@ -89,6 +91,8 @@ const initialStates = {
   showFolderOptions: false,
   showFileOptions: false,
   showTagFilter: false,
+  scrollPercentage: 0,
+  scrollingView: null,
 };
 
 const EditorProvider = ({ children }) => {
@@ -99,7 +103,6 @@ const EditorProvider = ({ children }) => {
   };
 
   const openModal = (id, mode, type) => {
-    console.log(type);
     if (mode === "create") {
       dispatch({ type: OPEN_MODAL, payload: type });
     }
@@ -679,6 +682,14 @@ const EditorProvider = ({ children }) => {
     dispatch({ type: TOGGLE_TAG_FILTER, payload: val });
   };
 
+  const handleScroll = (val) => {
+    dispatch({ type: SET_PERCENTAGE, payload: val });
+  };
+
+  const setScrollingView = (val) => {
+    dispatch({ type: SET_SCROLLING_VIEW, payload: val });
+  };
+
   return (
     <EditorContext.Provider
       value={{
@@ -715,6 +726,8 @@ const EditorProvider = ({ children }) => {
         setFolderOptions,
         setFileOptions,
         toggleTagFilter,
+        handleScroll,
+        setScrollingView,
       }}
     >
       {children}
