@@ -29,11 +29,14 @@ import reducer, {
   TOGGLE_TAG_FILTER,
   SET_PERCENTAGE,
   SET_SCROLLING_VIEW,
+  SET_INITIAL_FOLDERS,
+  SET_CODE,
 } from "../Reducers/EditorReducer";
 import { UPDATE_CODE } from "../Reducers/EditorReducer";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import axios from "axios";
+import useLocalStorage from "../Hooks/useLocalStorage";
 
 const EditorContext = React.createContext();
 
@@ -41,7 +44,7 @@ const initialStates = {
   code: {
     dataId: "3",
     title: "New note",
-    code: "### Title",
+    code: '### Example file\n\nYou can create your check list like so:\n- [ ] (for unchecked checkbox)\n- [x] (for checked checkbox)\n\n> Or you can create a quote like so\n\n```javascript\n// or you can display you code blocks\nconst sayHi = (name) => {\n  return console.log(`Hello ${name}`)\n}\n\nsayHi("Cihan") // Hello Cihan\n```',
     tags: [],
   },
   codeSnapshot: null,
@@ -52,27 +55,15 @@ const initialStates = {
   files: {
     id: "1",
     name: "Folders",
-    items: [
-      {
-        id: "2",
-        name: "New folder",
-        items: [
-          {
-            id: "3",
-            name: "New note",
-            tags: [],
-          },
-        ],
-      },
-    ],
+    items: [],
   },
   filesUpdated: 0,
   fullscreen: "",
   modalMode: "",
   newFolderName: "",
-  parent: "2",
+  parent: null,
   modalValue: "",
-  currentlySelectedFile: "3",
+  currentlySelectedFile: null,
   currentlySelectedTag: null,
   tags: [
     { id: "1", name: "Blue", color: "#2676ff", items: [] },
@@ -97,6 +88,20 @@ const initialStates = {
 
 const EditorProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialStates);
+  const [localStorageValue, updateLocalStorageValue] = useLocalStorage(
+    "fileData",
+    ""
+  );
+  const [codeArray, updateCodeArray] = useLocalStorage("code", [
+    {
+      dataId: "3",
+      title: "New note",
+      code: '### Example file\n\nYou can create your check list like so:\n- [ ] (for unchecked checkbox)\n- [x] (for checked checkbox)\n\n> Or you can create a quote like so\n\n```javascript\n// or you can display you code blocks\nconst sayHi = (name) => {\n  return console.log(`Hello ${name}`)\n}\n\nsayHi("Cihan") // Hello Cihan\n```',
+      tags: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ]);
 
   const updateCode = (value) => {
     dispatch({ type: UPDATE_CODE, payload: value });
@@ -119,49 +124,34 @@ const EditorProvider = ({ children }) => {
     dispatch({ type: CLOSE_MODAL });
   };
 
-  const createFolder = async (user) => {
-    const tempFiles = state.files;
-    const newId = uuidv4();
-    const newValue = state.modalValue.trim();
+  const createFolder = async () => {
+    try {
+      const tempFiles = state.files;
+      const newId = uuidv4();
+      const newValue = state.modalValue.trim();
 
-    if (newValue) {
-      const newFolder = {
-        id: newId,
-        name: newValue,
-        isFolder: true,
-        isOpen: false,
-        items: [],
-      };
+      if (newValue) {
+        const newFolder = {
+          id: newId,
+          name: newValue,
+          isFolder: true,
+          isOpen: false,
+          items: [],
+        };
 
-      try {
         tempFiles.items.unshift(newFolder);
-        if (user) {
-          const data = { email: user.email, data: tempFiles };
-          const response = await axios.post(
-            `${process.env.REACT_APP_BASEURL}/editor/folders`,
-            data,
-            {
-              headers: {
-                authorization: `bearer ${user.token}`,
-              },
-            }
-          );
-          if (response.status !== 200) {
-            toast.success("Oops, something went wrong");
-            return;
-          }
-        }
+        updateLocalStorageValue(tempFiles);
 
         const tempState = { ...state, files: tempFiles };
         dispatch({ type: APPEND_CHILD, payload: tempState });
         dispatch({ type: UPDATE_PARENT, payload: newId });
         dispatch({ type: CLOSE_MODAL });
         toast.success(`Folder "${newValue}" was created`);
-      } catch (error) {
-        toast.success("Oops, something went wrong");
+      } else {
+        toast.error("Please enter a folder name");
       }
-    } else {
-      toast.error("Please enter a folder name");
+    } catch (error) {
+      toast.success("Oops, something went wrong");
     }
   };
 
@@ -182,27 +172,18 @@ const EditorProvider = ({ children }) => {
       );
 
       tempFiles.items[index].items.unshift(newFile);
-      if (user) {
-        const data = {
-          email: user.email,
-          data: tempFiles,
-          dataId: newFile.id,
-          title: newFile.name,
-        };
-        const response = await axios.post(
-          `${process.env.REACT_APP_BASEURL}/editor/files`,
-          data,
-          {
-            headers: {
-              authorization: `bearer ${user.token}`,
-            },
-          }
-        );
-        if (response.status !== 200) {
-          toast.success("Oops, something went wrong");
-          return;
-        }
-      }
+
+      updateLocalStorageValue(tempFiles);
+      updateCodeArray(
+        codeArray.concat({
+          dataId: newId,
+          title: newValue,
+          code: "### Title",
+          tags: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+      );
 
       const tempState = { ...state, files: tempFiles };
       dispatch({ type: APPEND_CHILD, payload: tempState });
@@ -224,59 +205,31 @@ const EditorProvider = ({ children }) => {
   };
 
   const rename = async (user) => {
-    const tempFiles = { ...state.files };
     const newValue = state.modalValue.trim();
     if (newValue) {
-      tempFiles.items.forEach((item) => {
-        if (item.id === state.parent) {
-          item.items.forEach((file) => {
-            if (file.id === state.currentlySelectedFile) {
-              file.name = newValue;
-            }
-          });
-        }
-      });
       try {
-        const data = { email: user.email, data: tempFiles };
-        const response = await axios.post(
-          `${process.env.REACT_APP_BASEURL}/editor/folders`,
-          data,
-          {
-            headers: {
-              authorization: `bearer ${user.token}`,
-            },
+        const tempFiles = { ...state.files };
+
+        tempFiles.items.forEach((item) => {
+          if (item.id === state.parent) {
+            item.items.forEach((file) => {
+              if (file.id === state.currentlySelectedFile) {
+                file.name = newValue;
+              }
+            });
           }
-        );
-        if (response.status !== 200) {
-          toast.success("Oops, something went wrong");
-          return;
-        } else {
-          const tempState = { ...state, files: tempFiles };
-          dispatch({ type: APPEND_CHILD, payload: tempState });
-        }
+        });
+        const tempState = { ...state, files: tempFiles };
+        dispatch({ type: APPEND_CHILD, payload: tempState });
+        updateLocalStorageValue(tempFiles);
 
         const date = new Date();
         const newCode = { ...state.code, updatedAt: date, title: newValue };
-        const data2 = {
-          email: user.email,
-          code: newCode,
-        };
-        const response2 = await axios.post(
-          `${process.env.REACT_APP_BASEURL}/editor/code/update`,
-          data2,
-          {
-            headers: {
-              authorization: `bearer ${user.token}`,
-            },
-          }
+        const newCodeArray = codeArray.filter(
+          (code) => code.dataId !== state.currentlySelectedFile
         );
-        if (response2.status !== 200) {
-          toast.success("Oops, something went wrong");
-          return;
-        } else {
-          dispatch({ type: ASSIGN_CODE, payload: newCode });
-        }
-
+        updateCodeArray(newCodeArray.concat(newCode));
+        dispatch({ type: SET_CODE, payload: newCode });
         dispatch({ type: CLOSE_MODAL });
         toast.success(`Name changed to "${newValue}"`);
       } catch (error) {
@@ -389,12 +342,13 @@ const EditorProvider = ({ children }) => {
     }
   };
 
-  const deleteFile = async (user) => {
+  const deleteFile = async () => {
     let deletedIndex = null;
     let parent;
     const tempFiles = { ...state.files };
+
     if (state.showTagFilter) {
-      state.files.items.forEach((folder) => {
+      tempFiles.items.forEach((folder) => {
         folder.items.forEach((file) => {
           if (file.id === state.currentlySelectedFile) {
             parent = folder.id;
@@ -404,12 +358,12 @@ const EditorProvider = ({ children }) => {
     } else {
       parent = state.parent;
     }
+
     const currentParent = tempFiles.items.find((item) => item.id === parent);
     const newChildList = currentParent.items.filter((item, index) => {
       if (item.id !== state.currentlySelectedFile) {
         return true;
       }
-
       deletedIndex = index;
       return false;
     });
@@ -422,29 +376,6 @@ const EditorProvider = ({ children }) => {
     });
 
     try {
-      const data = { email: user.email, data: tempFiles };
-      const response = await axios.post(
-        `${process.env.REACT_APP_BASEURL}/editor/folders`,
-        data,
-        {
-          headers: {
-            authorization: `bearer ${user.token}`,
-          },
-        }
-      );
-      const response2 = await axios.delete(
-        `${process.env.REACT_APP_BASEURL}/editor/code/${state.currentlySelectedFile}`,
-        {
-          headers: {
-            authorization: `bearer ${user.token}`,
-          },
-        }
-      );
-      if (response.status !== 200 && response2.status !== 200) {
-        toast.error("Oops, something went wrong");
-        return;
-      }
-
       const noFile = length === 1;
       const tempState = { ...state, files: tempFiles, noFile };
 
@@ -462,6 +393,12 @@ const EditorProvider = ({ children }) => {
       let id = null;
 
       id = selectedIndex !== null ? newChildList[selectedIndex].id : null;
+      const newCodeArray = codeArray.filter(
+        (code) => code.dataId !== state.currentlySelectedFile
+      );
+
+      updateCodeArray(newCodeArray);
+      updateLocalStorageValue(tempState.files);
 
       dispatch({ type: APPEND_CHILD, payload: tempState });
       dispatch({ type: CLOSE_MODAL });
@@ -478,21 +415,14 @@ const EditorProvider = ({ children }) => {
     dispatch({ type: UPDATE_CURRENT_FILE, payload: id });
   };
 
-  const assignCode = async (user) => {
+  const assignCode = (id) => {
+    const list = [...codeArray];
+    const currentCode = list.find((code) => code.dataId === id);
+    console.log("id ==> ", id);
+    console.log(currentCode);
     dispatch({ type: CODE_LOADING, payload: true });
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BASEURL}/editor/code/${state.currentlySelectedFile}`,
-        {
-          headers: {
-            authorization: `bearer ${user.token}`,
-          },
-        }
-      );
-      const code = response.data.data[0];
-      dispatch({ type: CODE_LOADING, payload: false });
-      dispatch({ type: ASSIGN_CODE, payload: code });
-    } catch (error) {}
+    dispatch({ type: ASSIGN_CODE, payload: currentCode });
+    dispatch({ type: CODE_LOADING, payload: false });
   };
 
   const selectParent = (id) => {
@@ -690,6 +620,10 @@ const EditorProvider = ({ children }) => {
     dispatch({ type: SET_SCROLLING_VIEW, payload: val });
   };
 
+  const setInitialFiles = (files) => {
+    dispatch({ type: SET_INITIAL_FOLDERS, payload: files });
+  };
+
   return (
     <EditorContext.Provider
       value={{
@@ -728,6 +662,11 @@ const EditorProvider = ({ children }) => {
         toggleTagFilter,
         handleScroll,
         setScrollingView,
+        updateLocalStorageValue,
+        localStorageValue,
+        setInitialFiles,
+        codeArray,
+        updateCodeArray,
       }}
     >
       {children}

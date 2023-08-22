@@ -83,7 +83,7 @@ const Preview = () => {
             },
           }}
         >
-          {code.code}
+          {code?.code && code.code}
         </ReactMarkdown>
       </section>
     </StyledPreview>

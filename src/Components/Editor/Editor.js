@@ -71,7 +71,7 @@ const Editor = () => {
       </span>
       <CodeMirror
         ref={editorRef}
-        value={code.code}
+        value={code?.code && code.code}
         extensions={[markdown({ base: markdownLanguage })]}
         onChange={handleChange}
         height="100%"

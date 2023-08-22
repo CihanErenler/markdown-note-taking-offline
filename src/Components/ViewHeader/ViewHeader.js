@@ -1,16 +1,11 @@
 import styled from "styled-components";
 import Tags from "./Tags";
-import { useNavigate } from "react-router";
 import { useEditorContext } from "../../Context/EditorContext";
 import Button from "../Button";
 import FileOptions from "./FileOptions";
 
 const ViewHeader = () => {
-  const navigate = useNavigate();
   const { code, codeSnapshot, saveCode, noFile } = useEditorContext();
-  const handleClick = () => {
-    navigate("/login");
-  };
 
   const compare = () => {
     let isIttheSame = false;
@@ -26,7 +21,7 @@ const ViewHeader = () => {
   return (
     <StyledViewHeader>
       <div className="doc-info">
-        {!noFile && (
+        {!noFile && code?.code && (
           <>
             <div>
               <h2>{code.title}</h2>
@@ -37,7 +32,7 @@ const ViewHeader = () => {
       </div>
       <div className="save-btn">
         <>
-          <FileOptions />
+          {code?.code && <FileOptions />}
           <Button
             variant="small"
             disabled={compare()}

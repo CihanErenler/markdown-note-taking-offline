@@ -32,6 +32,8 @@ export const SET_FILE_OPTIONS = "SET_FILE_OPTIONS";
 export const TOGGLE_TAG_FILTER = "TOGGLE_TAG_FILTER";
 export const SET_PERCENTAGE = "SET_PERCENTAGE";
 export const SET_SCROLLING_VIEW = "SET_SCROLLING_VIEW";
+export const SET_INITIAL_FOLDERS = "SET_INITIAL_FOLDERS";
+export const SET_CODE = "SET_CODE";
 
 const editorReducer = (state, action) => {
   if (action.type === ASSIGN_CODE) {
@@ -266,6 +268,14 @@ const editorReducer = (state, action) => {
 
   if (action.type === SET_SCROLLING_VIEW) {
     return { ...state, scrollingView: action.payload };
+  }
+
+  if (action.type === SET_INITIAL_FOLDERS) {
+    return { ...state, files: action.payload };
+  }
+
+  if (action.type === SET_CODE) {
+    return { ...state, code: action.payload };
   }
 
   return state;

@@ -5,25 +5,29 @@ import FilterView from "./FilterView";
 import { useEditorContext } from "../../Context/EditorContext";
 
 const Sidebar = () => {
-	const { files, getAmount } = useEditorContext();
+  const { files, getAmount } = useEditorContext();
 
-	useEffect(() => {
-		getAmount();
-		// eslint-disable-next-line
-	}, [files]);
+  useEffect(() => {
+    getAmount();
+    // eslint-disable-next-line
+  }, [files]);
 
-	return (
-		<StyledSidebar>
-			<Parent />
-			<FilterView />
-		</StyledSidebar>
-	);
+  return (
+    <StyledSidebar>
+      {files && (
+        <>
+          <Parent />
+          <FilterView />
+        </>
+      )}
+    </StyledSidebar>
+  );
 };
 
 const StyledSidebar = styled.section`
-	display: flex;
-	width: 500px;
-	border-right: 1px solid ${(props) => props.theme.borderLight};
+  display: flex;
+  width: 500px;
+  border-right: 1px solid ${(props) => props.theme.borderLight};
 `;
 
 export default Sidebar;

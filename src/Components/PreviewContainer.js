@@ -9,15 +9,17 @@ import { useEditorContext } from "../Context/EditorContext.js";
 import logo from "../Assets/logo-black&white.svg";
 
 const PreviewContainer = () => {
-  const { fullscreen, currentlySelectedFile, assignCode, noFile } =
+  const { fullscreen, currentlySelectedFile, assignCode, noFile, code } =
     useEditorContext();
 
-  // useEffect(() => {
-  //   if (user && currentlySelectedFile) {
-  //     // assignCode(user);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [currentlySelectedFile]);
+  useEffect(() => {
+    if (currentlySelectedFile) {
+      console.log(currentlySelectedFile);
+      assignCode(currentlySelectedFile);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentlySelectedFile]);
 
   if (noFile) {
     return (
