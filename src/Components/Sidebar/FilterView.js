@@ -56,7 +56,9 @@ const Filter = () => {
         <>
           {selectedParent ? (
             <div className="folder-name">
-              <h3>{selectedParent.name}</h3>
+              <h3>
+                Folder: <span>{selectedParent.name}</span>
+              </h3>
               <div className="folder-buttons-wrapper">
                 <div>
                   <button
@@ -160,10 +162,17 @@ const StyledFilterView = styled.section`
     }
 
     h3 {
-      font-size: 16px;
+      font-size: 14px;
       color: ${(props) => props.theme.textColor};
       font-weight: 500;
       text-align: center;
+
+      span {
+        background-color: #ddd;
+        padding: 1px 6px;
+        display: inline-block;
+        border-radius: 4px;
+      }
     }
   }
 

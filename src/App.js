@@ -23,13 +23,15 @@ function App() {
     selectParent,
     updateSelectedFile,
     files,
+    setNoFile,
+    updateLocalStorageValue,
   } = useEditorContext();
 
   useEffect(() => {
     if (localStorageValue) {
       setInitialFiles(localStorageValue);
     } else {
-      setInitialFiles({
+      const newCode = {
         id: "1",
         name: "Folders",
         items: [
@@ -45,14 +47,10 @@ function App() {
             ],
           },
         ],
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (currentlySelectedFile !== code?.dataId) {
-      assignCode(currentlySelectedFile);
+      };
+      setInitialFiles(newCode);
+      updateLocalStorageValue(newCode);
+      updateCodeArray([code]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -60,17 +58,24 @@ function App() {
   useEffect(() => {
     if (files.items.length > 0 && !currentlySelectedFile) {
       let parent;
-      let tempSelectedFile;
+      let tempSelectedFile = null;
+      let isThereFile = false;
 
       files.items.forEach((item) => {
         if (item.items.length > 0) {
           parent = item.id;
           tempSelectedFile = item.items[0].id;
+          isThereFile = true;
         }
       });
 
+      if (!isThereFile)
+        parent = files.items.length > 0 ? files.items[0].id : null;
+
       selectParent(parent);
-      if (tempSelectedFile) updateSelectedFile(tempSelectedFile);
+      updateSelectedFile(tempSelectedFile);
+      assignCode(tempSelectedFile);
+      if (tempSelectedFile === null) setNoFile(true);
     }
   }, [files]);
 

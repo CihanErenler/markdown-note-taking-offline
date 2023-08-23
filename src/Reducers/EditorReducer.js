@@ -34,6 +34,7 @@ export const SET_PERCENTAGE = "SET_PERCENTAGE";
 export const SET_SCROLLING_VIEW = "SET_SCROLLING_VIEW";
 export const SET_INITIAL_FOLDERS = "SET_INITIAL_FOLDERS";
 export const SET_CODE = "SET_CODE";
+export const SET_SNAPSHOT = "SET_SNAPSHOT";
 
 const editorReducer = (state, action) => {
   if (action.type === ASSIGN_CODE) {
@@ -276,6 +277,10 @@ const editorReducer = (state, action) => {
 
   if (action.type === SET_CODE) {
     return { ...state, code: action.payload };
+  }
+
+  if (action.type === SET_SNAPSHOT) {
+    return { ...state, codeSnapshot: action.payload };
   }
 
   return state;

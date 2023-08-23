@@ -14,7 +14,6 @@ const PreviewContainer = () => {
 
   useEffect(() => {
     if (currentlySelectedFile) {
-      console.log(currentlySelectedFile);
       assignCode(currentlySelectedFile);
     }
 

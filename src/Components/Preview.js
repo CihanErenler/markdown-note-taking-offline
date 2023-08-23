@@ -196,7 +196,7 @@ const StyledPreview = styled.div`
     border: 0.1px solid ${(props) => props.theme.inputBorder};
   }
 
-  pre {
+  pre:not(:has(> div)) {
     background-color: #f7f7f7;
     border: 1px solid #ddd;
     padding: 10px;

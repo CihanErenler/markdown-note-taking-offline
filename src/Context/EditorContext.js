@@ -31,6 +31,7 @@ import reducer, {
   SET_SCROLLING_VIEW,
   SET_INITIAL_FOLDERS,
   SET_CODE,
+  SET_SNAPSHOT,
 } from "../Reducers/EditorReducer";
 import { UPDATE_CODE } from "../Reducers/EditorReducer";
 import { v4 as uuidv4 } from "uuid";
@@ -155,7 +156,7 @@ const EditorProvider = ({ children }) => {
     }
   };
 
-  const createFile = async (user) => {
+  const createFile = async () => {
     const tempFiles = { ...state.files };
     const newId = uuidv4();
     const newValue = state.modalValue.trim();
@@ -187,9 +188,9 @@ const EditorProvider = ({ children }) => {
 
       const tempState = { ...state, files: tempFiles };
       dispatch({ type: APPEND_CHILD, payload: tempState });
+      dispatch({ type: SET_NOFILE, payload: false });
       dispatch({ type: CLOSE_MODAL });
       dispatch({ type: UPDATE_CURRENT_FILE, payload: newId });
-      dispatch({ type: SET_NOFILE, payload: false });
       toast.success(`File "${newValue}" was created`);
     } else {
       toast.warn("Please enter a file name");
@@ -204,7 +205,7 @@ const EditorProvider = ({ children }) => {
     dispatch({ type: UPDATE_MODAL, payload: e.target.value });
   };
 
-  const rename = async (user) => {
+  const rename = async () => {
     const newValue = state.modalValue.trim();
     if (newValue) {
       try {
@@ -219,6 +220,9 @@ const EditorProvider = ({ children }) => {
             });
           }
         });
+
+        console.log(tempFiles);
+
         const tempState = { ...state, files: tempFiles };
         dispatch({ type: APPEND_CHILD, payload: tempState });
         updateLocalStorageValue(tempFiles);
@@ -228,6 +232,7 @@ const EditorProvider = ({ children }) => {
         const newCodeArray = codeArray.filter(
           (code) => code.dataId !== state.currentlySelectedFile
         );
+
         updateCodeArray(newCodeArray.concat(newCode));
         dispatch({ type: SET_CODE, payload: newCode });
         dispatch({ type: CLOSE_MODAL });
@@ -250,23 +255,9 @@ const EditorProvider = ({ children }) => {
         }
       });
       try {
-        const data = { email: user.email, data: tempFiles };
-        const response = await axios.post(
-          `${process.env.REACT_APP_BASEURL}/editor/folders`,
-          data,
-          {
-            headers: {
-              authorization: `bearer ${user.token}`,
-            },
-          }
-        );
-        if (response.status !== 200) {
-          toast.success("Oops, something went wrong");
-          return;
-        } else {
-          const tempState = { ...state, files: tempFiles };
-          dispatch({ type: APPEND_CHILD, payload: tempState });
-        }
+        const tempState = { ...state, files: tempFiles };
+        dispatch({ type: APPEND_CHILD, payload: tempState });
+        updateLocalStorageValue(tempFiles);
 
         dispatch({ type: CLOSE_MODAL });
         toast.success(`Name changed to "${newValue}"`);
@@ -292,30 +283,21 @@ const EditorProvider = ({ children }) => {
     tempFiles.items = parents;
 
     try {
-      if (user) {
-        const data = { email: user.email, data: tempFiles };
-        const response = await axios.post(
-          `${process.env.REACT_APP_BASEURL}/editor/folders`,
-          data,
-          {
-            headers: {
-              authorization: `bearer ${user.token}`,
-            },
-          }
-        );
-        if (response.status !== 200) {
-          toast.error("Oops, something went wrong");
-          return;
-        }
-      }
-
       // const temp = state.files.items
-      // 	.find((item) => item.id === state.parent)
-      // 	.items.find((item) => item.id === state.currentlySelectedFile);
+      //   .find((item) => item.id === state.parent)
+      //   .items.find((item) => item.id === state.currentlySelectedFile);
 
       // const noFile = temp ? true : false;
 
+      let isNoFile = true;
+
+      tempFiles.items.forEach((file) => {
+        if (file.items.length > 0) isNoFile = false;
+      });
+
       const tempState = { ...state, files: tempFiles };
+
+      updateLocalStorageValue(tempFiles);
       dispatch({ type: APPEND_CHILD, payload: tempState });
       dispatch({ type: CLOSE_MODAL });
       const parentId = index !== null ? parents[index].id : null;
@@ -335,6 +317,9 @@ const EditorProvider = ({ children }) => {
         type: UPDATE_PARENT,
         payload: index !== null ? parents[index].id : null,
       });
+      if (isNoFile) {
+        dispatch({ type: SET_NOFILE, payload: true });
+      }
       toast.success(`Folder deleted`);
     } catch (error) {
       console.log(error.message);
@@ -418,7 +403,6 @@ const EditorProvider = ({ children }) => {
   const assignCode = (id) => {
     const list = [...codeArray];
     const currentCode = list.find((code) => code.dataId === id);
-    console.log("id ==> ", id);
     console.log(currentCode);
     dispatch({ type: CODE_LOADING, payload: true });
     dispatch({ type: ASSIGN_CODE, payload: currentCode });
@@ -461,45 +445,19 @@ const EditorProvider = ({ children }) => {
     }
   };
 
-  const saveCode = async (user) => {
+  const saveCode = async () => {
     try {
       const date = new Date();
       const newCode = { ...state.code, updatedAt: date };
-      const data = {
-        email: user.email,
-        code: newCode,
-      };
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_BASEURL}/editor/code/update`,
-        data,
-        {
-          headers: {
-            authorization: `bearer ${user.token}`,
-          },
+      const tempArray = [...codeArray];
+      codeArray.forEach((code, index) => {
+        if (state.currentlySelectedFile === code.dataId) {
+          tempArray[index] = newCode;
         }
-      );
-      if (state.code.tags.length !== state.codeSnapshot.tags.length) {
-        const tempTags = [...state.tags];
-        const data = { email: user.email, data: tempTags };
-        const response = await axios.post(
-          `${process.env.REACT_APP_BASEURL}/editor/tags`,
-          data,
-          {
-            headers: {
-              authorization: `bearer ${user.token}`,
-            },
-          }
-        );
-        if (response.status !== 200) {
-          toast.success("Oops, something went wrong");
-          return;
-        }
-      }
-      if (response.status === 200) {
-        dispatch({ type: ASSIGN_CODE, payload: newCode });
-        toast.success("Note updated");
-      }
+      });
+      updateCodeArray(tempArray);
+      dispatch({ type: SET_SNAPSHOT, payload: newCode });
+      toast.success("Code saved successfully");
     } catch (error) {
       toast.error("Oops, something went wrong");
     }
@@ -624,6 +582,10 @@ const EditorProvider = ({ children }) => {
     dispatch({ type: SET_INITIAL_FOLDERS, payload: files });
   };
 
+  const setNoFile = (val) => {
+    dispatch({ type: SET_NOFILE, payload: val });
+  };
+
   return (
     <EditorContext.Provider
       value={{
@@ -667,6 +629,7 @@ const EditorProvider = ({ children }) => {
         setInitialFiles,
         codeArray,
         updateCodeArray,
+        setNoFile,
       }}
     >
       {children}
