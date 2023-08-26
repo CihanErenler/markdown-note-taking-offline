@@ -35,6 +35,8 @@ export const SET_SCROLLING_VIEW = "SET_SCROLLING_VIEW";
 export const SET_INITIAL_FOLDERS = "SET_INITIAL_FOLDERS";
 export const SET_CODE = "SET_CODE";
 export const SET_SNAPSHOT = "SET_SNAPSHOT";
+export const TOGGLE_ALL_NOTES = "TOGGLE_ALL_NOTES";
+export const SET_INITIAL_TAGS = "SET_INITIAL_TAGS";
 
 const editorReducer = (state, action) => {
   if (action.type === ASSIGN_CODE) {
@@ -250,17 +252,17 @@ const editorReducer = (state, action) => {
   }
 
   if (action.type === TOGGLE_TAG) {
-    const code = { ...state.code };
-    const tempTags = [...state.tags];
+    const tempTags = state.tags.concat();
     const id = action.payload;
-    code.tags = [...code.tags, id];
-    tempTags.forEach((tag) => {
+    const code = { ...state.code, tags: [...state.code.tags, id] };
+    console.log(code);
+    const finalTags = tempTags.map((tag) => {
       if (tag.id === id) {
-        tag.items.push(state.currentlySelectedFile);
+        return { ...tag, items: [...tag.items, state.currentlySelectedFile] };
       }
+      return tag;
     });
-    const newState = { ...state, code, tags: tempTags };
-    return newState;
+    return { ...state, code, tags: finalTags };
   }
 
   if (action.type === SET_PERCENTAGE) {
@@ -281,6 +283,17 @@ const editorReducer = (state, action) => {
 
   if (action.type === SET_SNAPSHOT) {
     return { ...state, codeSnapshot: action.payload };
+  }
+
+  if (action.type === TOGGLE_ALL_NOTES) {
+    return { ...state, showAllNotes: action.payload };
+  }
+
+  if (action.type === SET_INITIAL_TAGS) {
+    return {
+      ...state,
+      tags: [...action.payload],
+    };
   }
 
   return state;

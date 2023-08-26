@@ -32,6 +32,8 @@ import reducer, {
   SET_INITIAL_FOLDERS,
   SET_CODE,
   SET_SNAPSHOT,
+  TOGGLE_ALL_NOTES,
+  SET_INITIAL_TAGS,
 } from "../Reducers/EditorReducer";
 import { UPDATE_CODE } from "../Reducers/EditorReducer";
 import { v4 as uuidv4 } from "uuid";
@@ -66,16 +68,7 @@ const initialStates = {
   modalValue: "",
   currentlySelectedFile: null,
   currentlySelectedTag: null,
-  tags: [
-    { id: "1", name: "Blue", color: "#2676ff", items: [] },
-    { id: "2", name: "Green", color: "green", items: [] },
-    { id: "3", name: "Grey", color: "grey", items: [] },
-    { id: "4", name: "Important", color: "red", items: [] },
-    { id: "5", name: "Orange", color: "orange", items: [] },
-    { id: "6", name: "Purple", color: "purple", items: [] },
-    { id: "7", name: "Work", color: "yellow", items: [] },
-    { id: "8", name: "Development", color: "dodgerblue", items: [] },
-  ],
+  tags: [],
   tagInput: "",
   totalAmount: 0,
   showAvatarDropdown: false,
@@ -85,13 +78,14 @@ const initialStates = {
   showTagFilter: false,
   scrollPercentage: 0,
   scrollingView: null,
+  showAllNotes: false,
 };
 
 const EditorProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialStates);
   const [localStorageValue, updateLocalStorageValue] = useLocalStorage(
     "fileData",
-    ""
+    null
   );
   const [codeArray, updateCodeArray] = useLocalStorage("code", [
     {
@@ -103,6 +97,7 @@ const EditorProvider = ({ children }) => {
       updatedAt: new Date(),
     },
   ]);
+  const [tagsArray, updateTagsArray] = useLocalStorage("tags", []);
 
   const updateCode = (value) => {
     dispatch({ type: UPDATE_CODE, payload: value });
@@ -403,7 +398,6 @@ const EditorProvider = ({ children }) => {
   const assignCode = (id) => {
     const list = [...codeArray];
     const currentCode = list.find((code) => code.dataId === id);
-    console.log(currentCode);
     dispatch({ type: CODE_LOADING, payload: true });
     dispatch({ type: ASSIGN_CODE, payload: currentCode });
     dispatch({ type: CODE_LOADING, payload: false });
@@ -440,6 +434,7 @@ const EditorProvider = ({ children }) => {
       } else {
         const tag = { id: uuidv4(), name: value, color, items: [] };
         dispatch({ type: ADD_NEW_TAG, payload: tag });
+        updateTagsArray([...tagsArray, tag]);
         clearTagInput();
       }
     }
@@ -456,6 +451,7 @@ const EditorProvider = ({ children }) => {
         }
       });
       updateCodeArray(tempArray);
+      updateTagsArray([...state.tags]);
       dispatch({ type: SET_SNAPSHOT, payload: newCode });
       toast.success("Code saved successfully");
     } catch (error) {
@@ -468,6 +464,7 @@ const EditorProvider = ({ children }) => {
   };
 
   const toggleTags = (id) => {
+    console.log("id =====> ", id);
     dispatch({ type: TOGGLE_TAG, payload: id });
   };
 
@@ -586,6 +583,14 @@ const EditorProvider = ({ children }) => {
     dispatch({ type: SET_NOFILE, payload: val });
   };
 
+  const toggleShowAllFiles = (val) => {
+    dispatch({ type: TOGGLE_ALL_NOTES, payload: val });
+  };
+
+  const setInitialTags = (val) => {
+    dispatch({ type: SET_INITIAL_TAGS, payload: val });
+  };
+
   return (
     <EditorContext.Provider
       value={{
@@ -630,6 +635,10 @@ const EditorProvider = ({ children }) => {
         codeArray,
         updateCodeArray,
         setNoFile,
+        toggleShowAllFiles,
+        tagsArray,
+        updateTagsArray,
+        setInitialTags,
       }}
     >
       {children}

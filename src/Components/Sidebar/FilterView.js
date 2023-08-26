@@ -7,8 +7,9 @@ import { AiOutlineFileAdd } from "react-icons/ai";
 import { useEditorContext } from "../../Context/EditorContext";
 import { IoEllipsisVertical } from "react-icons/io5";
 import FolderOptions from "./FolderOptions";
-import { HiOutlineFolderPlus } from "react-icons/hi2";
 import TagFilter from "./TagFilter";
+import NoItemMessage from "./NoItemMessage";
+import NoFolderMessage from "./NoFolderMessage";
 
 const Filter = () => {
   const [notes, setNotes] = useState([]);
@@ -21,6 +22,7 @@ const Filter = () => {
     setFolderOptions,
     showFolderOptions,
     showTagFilter,
+    showAllFiles,
   } = useEditorContext();
   const ref = useRef(null);
 
@@ -92,24 +94,12 @@ const Filter = () => {
                       );
                     })
                   ) : (
-                    <div className="empty-msg">
-                      <h4 className="placeholder">The folder is empty</h4>
-                      <AiOutlineFileAdd
-                        size={50}
-                        onClick={() => openModal("", "create", "create-file")}
-                      />
-                    </div>
+                    <NoFolderMessage handleClick={openModal} />
                   )}
                 </ul>
               </>
             ) : (
-              <div className="empty-msg">
-                <h4 className="placeholder">No item to show</h4>
-                <HiOutlineFolderPlus
-                  size={50}
-                  onClick={() => openModal(1, "create", "create-folder")}
-                />
-              </div>
+              <NoItemMessage handlClick={openModal} editable={true} />
             )}
           </section>
         </>

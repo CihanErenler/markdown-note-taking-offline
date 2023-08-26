@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useEditorContext } from "../../Context/EditorContext";
 import File from "./File";
+import NoItemMessage from "./NoItemMessage";
 
 const TagFilter = () => {
   const [itemsToShow, setItemsToShow] = useState([]);
-  const { currentlySelectedTag, showTagFilter, tags, files } =
+  const { currentlySelectedTag, showTagFilter, tags, files, codeSnapshot } =
     useEditorContext();
+
   useEffect(() => {
     if (showTagFilter) {
-      console.log(tags);
       const selectedTag = tags.find((tag) => tag.name === currentlySelectedTag);
-      console.log("selected tag ==> ", selectedTag);
       let items = [];
 
       selectedTag.items.forEach((item) => {
@@ -31,7 +31,7 @@ const TagFilter = () => {
       setItemsToShow(items);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentlySelectedTag, showTagFilter]);
+  }, [currentlySelectedTag, showTagFilter, codeSnapshot]);
 
   return (
     <StyledTagFilter>
@@ -41,13 +41,17 @@ const TagFilter = () => {
       </div>
       <div className="filtered-files">
         <ul>
-          {itemsToShow.map((item, index) => {
-            return (
-              <File key={item.id} index={index} id={item.id}>
-                {item.name}
-              </File>
-            );
-          })}
+          {itemsToShow.length > 0 ? (
+            itemsToShow.map((item, index) => {
+              return (
+                <File key={item.id} index={index} id={item.id}>
+                  {item.name}
+                </File>
+              );
+            })
+          ) : (
+            <NoItemMessage editable={false} />
+          )}
         </ul>
       </div>
     </StyledTagFilter>
@@ -65,6 +69,7 @@ const StyledTagFilter = styled.div`
       padding: 1px 6px;
       display: inline-block;
       border-radius: 4px;
+      text-transform: capitalize;
     }
   }
 

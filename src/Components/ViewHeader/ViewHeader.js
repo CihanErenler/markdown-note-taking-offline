@@ -19,7 +19,6 @@ const ViewHeader = () => {
     return isIttheSame;
   };
 
-  console.log(code);
   return (
     <StyledViewHeader>
       <div className="doc-info">
