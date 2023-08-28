@@ -10,7 +10,7 @@ const AllNotes = () => {
       <div className="tree-title">
         <span onClick={() => toggleShowAllFiles(true)}>
           <FaStickyNote size={18} color="tomato" />
-          <h1>All Notes </h1>
+          <h1>Total Files </h1>
         </span>
         <Amount amount={totalAmount} />
       </div>

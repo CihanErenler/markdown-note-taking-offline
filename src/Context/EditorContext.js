@@ -34,6 +34,9 @@ import reducer, {
   SET_SNAPSHOT,
   TOGGLE_ALL_NOTES,
   SET_INITIAL_TAGS,
+  SET_IS_SEARCHING,
+  SET_LAST_LOCATION,
+  SET_SEARCH_VALUE,
 } from "../Reducers/EditorReducer";
 import { UPDATE_CODE } from "../Reducers/EditorReducer";
 import { v4 as uuidv4 } from "uuid";
@@ -49,6 +52,8 @@ const initialStates = {
     title: "New note",
     code: '### Example file\n\nYou can create your check list like so:\n- [ ] (for unchecked checkbox)\n- [x] (for checked checkbox)\n\n> Or you can create a quote like so\n\n```javascript\n// or you can display you code blocks\nconst sayHi = (name) => {\n  return console.log(`Hello ${name}`)\n}\n\nsayHi("Cihan") // Hello Cihan\n```',
     tags: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   codeSnapshot: null,
   isCodeLoading: false,
@@ -79,6 +84,9 @@ const initialStates = {
   scrollPercentage: 0,
   scrollingView: null,
   showAllNotes: false,
+  lastLocationOnSidebar: null,
+  isSearching: false,
+  searchValue: "",
 };
 
 const EditorProvider = ({ children }) => {
@@ -312,7 +320,8 @@ const EditorProvider = ({ children }) => {
         type: UPDATE_PARENT,
         payload: index !== null ? parents[index].id : null,
       });
-      if (isNoFile) {
+      if (isNoFile && !state.showAllNotes) {
+        console.log("burada misin");
         dispatch({ type: SET_NOFILE, payload: true });
       }
       toast.success(`Folder deleted`);
@@ -326,8 +335,9 @@ const EditorProvider = ({ children }) => {
     let deletedIndex = null;
     let parent;
     const tempFiles = { ...state.files };
+    const tempTags = [...state.tags];
 
-    if (state.showTagFilter) {
+    if (state.showTagFilter || state.showAllNotes) {
       tempFiles.items.forEach((folder) => {
         folder.items.forEach((file) => {
           if (file.id === state.currentlySelectedFile) {
@@ -348,6 +358,16 @@ const EditorProvider = ({ children }) => {
       return false;
     });
 
+    const newTags = tempTags.map((tag) => {
+      if (tag.items.includes(state.currentlySelectedFile)) {
+        const filteredTags = tag.items.filter(
+          (tag) => tag !== state.currentlySelectedFile
+        );
+        return { ...tag, items: filteredTags };
+      }
+      return tag;
+    });
+
     const length = currentParent.items.length;
     currentParent.items = newChildList;
 
@@ -357,7 +377,7 @@ const EditorProvider = ({ children }) => {
 
     try {
       const noFile = length === 1;
-      const tempState = { ...state, files: tempFiles, noFile };
+      const tempState = { ...state, files: tempFiles, noFile, tags: newTags };
 
       let selectedIndex = null;
       if (length >= 1) {
@@ -379,6 +399,7 @@ const EditorProvider = ({ children }) => {
 
       updateCodeArray(newCodeArray);
       updateLocalStorageValue(tempState.files);
+      updateTagsArray(newTags);
 
       dispatch({ type: APPEND_CHILD, payload: tempState });
       dispatch({ type: CLOSE_MODAL });
@@ -405,6 +426,7 @@ const EditorProvider = ({ children }) => {
 
   const selectParent = (id) => {
     toggleTagFilter(false);
+    toggleShowAllFiles(false);
     dispatch({ type: UPDATE_PARENT, payload: id });
   };
 
@@ -452,7 +474,10 @@ const EditorProvider = ({ children }) => {
       });
       updateCodeArray(tempArray);
       updateTagsArray([...state.tags]);
-      dispatch({ type: SET_SNAPSHOT, payload: newCode });
+      dispatch({
+        type: APPEND_CHILD,
+        payload: { ...state, code: newCode, codeSnapshot: newCode },
+      });
       toast.success("Code saved successfully");
     } catch (error) {
       toast.error("Oops, something went wrong");
@@ -494,11 +519,13 @@ const EditorProvider = ({ children }) => {
 
   const removeTag = (id) => {
     const tags = [...state.tags];
-    const tag = tags.find((tag) => tag.id === id);
-    const index = tag.items.findIndex(
-      (item) => item === state.currentlySelectedFile
-    );
-    tag.items.splice(index, 1);
+    const index = tags.findIndex((item) => item.id === id);
+    const tag = { ...tags[index] };
+    const newTag = {
+      ...tag,
+      items: [...tag.items.filter((t) => t !== state.currentlySelectedFile)],
+    };
+    tags.splice(index, 1, newTag);
     const newState = { ...state, tags };
     dispatch({ type: APPEND_CHILD, payload: newState });
     dispatch({ type: REMOVE_TAG, payload: id });
@@ -591,6 +618,18 @@ const EditorProvider = ({ children }) => {
     dispatch({ type: SET_INITIAL_TAGS, payload: val });
   };
 
+  const toggleSearch = (val) => {
+    dispatch({ type: SET_IS_SEARCHING, payload: val });
+  };
+
+  const setLastLocation = (val) => {
+    dispatch({ type: SET_LAST_LOCATION, payload: val });
+  };
+
+  const setSearchValue = (val) => {
+    dispatch({ type: SET_SEARCH_VALUE, payload: val });
+  };
+
   return (
     <EditorContext.Provider
       value={{
@@ -639,6 +678,9 @@ const EditorProvider = ({ children }) => {
         tagsArray,
         updateTagsArray,
         setInitialTags,
+        toggleSearch,
+        setLastLocation,
+        setSearchValue,
       }}
     >
       {children}

@@ -10,11 +10,13 @@ import FolderOptions from "./FolderOptions";
 import TagFilter from "./TagFilter";
 import NoItemMessage from "./NoItemMessage";
 import NoFolderMessage from "./NoFolderMessage";
+import AllFiles from "./AllFiles";
+import SearchResults from "./SearchResults";
 
 const Filter = () => {
   const [notes, setNotes] = useState([]);
   const [selectedParent, setSelectedParent] = useState(null);
-  const [value, setValue] = useState("");
+
   const {
     parent,
     files,
@@ -22,7 +24,9 @@ const Filter = () => {
     setFolderOptions,
     showFolderOptions,
     showTagFilter,
-    showAllFiles,
+    showAllNotes,
+    setSearchValue,
+    searchValue,
   } = useEditorContext();
   const ref = useRef(null);
 
@@ -40,20 +44,20 @@ const Filter = () => {
     <StyledFilterView>
       <div className="search-wrapper">
         <div className="filter-view-header">
-          {/* <button>
-						<BiFilterAlt size={22} />
-					</button> */}
           <h3>Notes</h3>
         </div>
-        <Input
-          value={value}
-          action={(e) => setValue(e.target.value)}
+        {/* <Input
           placeholder="Search..."
+          showPass="search"
           type="search"
-        />
+          value={searchValue}
+          action={(e) => setSearchValue(e.target.value)}
+        /> */}
       </div>
       {showTagFilter ? (
         <TagFilter />
+      ) : showAllNotes ? (
+        <AllFiles />
       ) : (
         <>
           {selectedParent ? (

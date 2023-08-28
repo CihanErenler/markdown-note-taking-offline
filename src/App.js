@@ -29,6 +29,7 @@ function App() {
     updateTagsArray,
     tags,
     setInitialTags,
+    showAllNotes,
   } = useEditorContext();
 
   useEffect(() => {
@@ -79,7 +80,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (files.items.length > 0 && !currentlySelectedFile) {
+    if (files.items.length > 0 && !currentlySelectedFile && !showAllNotes) {
       let parent;
       let tempSelectedFile = null;
       let isThereFile = false;
@@ -95,10 +96,12 @@ function App() {
       if (!isThereFile)
         parent = files.items.length > 0 ? files.items[0].id : null;
 
-      selectParent(parent);
+      if (!showAllNotes) selectParent(parent);
       updateSelectedFile(tempSelectedFile);
       assignCode(tempSelectedFile);
-      if (tempSelectedFile === null) setNoFile(true);
+      if (tempSelectedFile === null) {
+        setNoFile(true);
+      }
     }
   }, [files]);
 

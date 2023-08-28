@@ -5,7 +5,8 @@ import Button from "../Button";
 import FileOptions from "./FileOptions";
 
 const ViewHeader = () => {
-  const { code, codeSnapshot, saveCode, noFile } = useEditorContext();
+  const { code, codeSnapshot, saveCode, noFile, showAllNotes } =
+    useEditorContext();
 
   const compare = () => {
     let isIttheSame = false;

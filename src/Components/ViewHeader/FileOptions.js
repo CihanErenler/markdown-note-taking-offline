@@ -7,7 +7,7 @@ import { useEditorContext } from "../../Context/EditorContext";
 const FileOptions = () => {
   const [showInfo, setShowInfo] = useState(false);
   const options = useRef(null);
-  const { code, openModal, setFileOptions, showFileOptions } =
+  const { code, openModal, setFileOptions, showFileOptions, showAllNotes } =
     useEditorContext();
 
   const handleRename = () => {
@@ -77,10 +77,15 @@ const FileOptions = () => {
       <div className="icons-wrapper">
         <div className="info-btn" onClick={() => handleIconClick("info")}>
           <BsInfoCircle size={22} />
-        </div>
-        <div className="icon-wrapper" onClick={() => handleIconClick("option")}>
-          <SlOptions size={20} />
-        </div>
+        </div>{" "}
+        {!showAllNotes && (
+          <div
+            className="icon-wrapper"
+            onClick={() => handleIconClick("option")}
+          >
+            <SlOptions size={20} />
+          </div>
+        )}
       </div>
       {showFileOptions ? (
         <section className="file-options">

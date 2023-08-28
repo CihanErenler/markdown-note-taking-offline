@@ -37,6 +37,9 @@ export const SET_CODE = "SET_CODE";
 export const SET_SNAPSHOT = "SET_SNAPSHOT";
 export const TOGGLE_ALL_NOTES = "TOGGLE_ALL_NOTES";
 export const SET_INITIAL_TAGS = "SET_INITIAL_TAGS";
+export const SET_LAST_LOCATION = "SET_LAST_LOCATION";
+export const SET_IS_SEARCHING = "SET_IS_SEARCHING";
+export const SET_SEARCH_VALUE = "SET_SEARCH_VALUE";
 
 const editorReducer = (state, action) => {
   if (action.type === ASSIGN_CODE) {
@@ -231,12 +234,16 @@ const editorReducer = (state, action) => {
         }
       });
 
-      if (!selected) {
+      if (!selected && !state.showAllNotes) {
+        console.log("buraya mi girdi acaba");
         parent = files.items[0].id;
         noFile = true;
       }
     } else {
-      noFile = true;
+      if (!state.showAllNotes) {
+        console.log("buraya mi girdi acaba");
+        noFile = true;
+      }
     }
 
     const newState = {
@@ -285,8 +292,25 @@ const editorReducer = (state, action) => {
     return { ...state, codeSnapshot: action.payload };
   }
 
+  if (action.type === SET_IS_SEARCHING) {
+    console.log("oh yeah");
+    return { ...state, isSearching: action.payload };
+  }
+
+  if (action.type === SET_LAST_LOCATION) {
+    return { ...state, lastLocationOnSidebar: action.payload };
+  }
+  if (action.type === SET_SEARCH_VALUE) {
+    return { ...state, searchValue: action.payload };
+  }
+
   if (action.type === TOGGLE_ALL_NOTES) {
-    return { ...state, showAllNotes: action.payload };
+    return {
+      ...state,
+      showAllNotes: action.payload,
+      showTagFilter: false,
+      parent: null,
+    };
   }
 
   if (action.type === SET_INITIAL_TAGS) {
