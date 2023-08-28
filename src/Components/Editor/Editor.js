@@ -21,7 +21,7 @@ const Editor = () => {
   } = useEditorContext();
   const editorRef = useRef(null);
 
-  const handleChange = (value, viewUpdate) => {
+  const handleChange = (value) => {
     updateCode(value);
   };
 
@@ -32,6 +32,7 @@ const Editor = () => {
     if (scroller && scrollingView === "preview") {
       scroller.scrollTop = (editor?.offsetHeight / 100) * scrollPercentage;
     }
+    // eslint-disable-next-line
   }, [scrollPercentage]);
 
   useEffect(() => {

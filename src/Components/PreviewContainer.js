@@ -9,7 +9,7 @@ import { useEditorContext } from "../Context/EditorContext.js";
 import logo from "../Assets/logo-black&white.svg";
 
 const PreviewContainer = () => {
-  const { fullscreen, currentlySelectedFile, assignCode, noFile, code } =
+  const { fullscreen, currentlySelectedFile, assignCode, noFile } =
     useEditorContext();
 
   useEffect(() => {

@@ -25,6 +25,7 @@ const Preview = () => {
       previewRef.current.scrollTop =
         (contentRef.current.offsetHeight / 100) * scrollPercentage;
     }
+    // eslint-disable-next-line
   }, [scrollPercentage]);
 
   useEffect(() => {
@@ -47,6 +48,7 @@ const Preview = () => {
 
     previewRef.current.addEventListener("mouseenter", handleMouseEnter);
     previewRef.current.addEventListener("mouseleave", handleMouseLeave);
+    // eslint-disable-next-line
   }, []);
 
   return (
