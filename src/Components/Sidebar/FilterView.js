@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import Input from "../Input";
 import File from "./File";
 import { AiOutlineFileAdd } from "react-icons/ai";
 // import { BiFilterAlt } from "react-icons/bi";
@@ -11,7 +10,6 @@ import TagFilter from "./TagFilter";
 import NoItemMessage from "./NoItemMessage";
 import NoFolderMessage from "./NoFolderMessage";
 import AllFiles from "./AllFiles";
-import SearchResults from "./SearchResults";
 
 const Filter = () => {
   const [notes, setNotes] = useState([]);
@@ -25,8 +23,6 @@ const Filter = () => {
     showFolderOptions,
     showTagFilter,
     showAllNotes,
-    setSearchValue,
-    searchValue,
   } = useEditorContext();
   const ref = useRef(null);
 

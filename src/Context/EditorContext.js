@@ -31,7 +31,6 @@ import reducer, {
   SET_SCROLLING_VIEW,
   SET_INITIAL_FOLDERS,
   SET_CODE,
-  SET_SNAPSHOT,
   TOGGLE_ALL_NOTES,
   SET_INITIAL_TAGS,
   SET_IS_SEARCHING,
@@ -50,6 +49,7 @@ const initialStates = {
   code: {
     dataId: "3",
     title: "New note",
+    // eslint-disable-next-line
     code: '### Example file\n\nYou can create your check list like so:\n- [ ] (for unchecked checkbox)\n- [x] (for checked checkbox)\n\n> Or you can create a quote like so\n\n```javascript\n// or you can display you code blocks\nconst sayHi = (name) => {\n  return console.log(`Hello ${name}`)\n}\n\nsayHi("Cihan") // Hello Cihan\n```',
     tags: [],
     createdAt: new Date(),
@@ -99,7 +99,8 @@ const EditorProvider = ({ children }) => {
     {
       dataId: "3",
       title: "New note",
-      code: '### Example file\n\nYou can create your check list like so:\n- [ ] (for unchecked checkbox)\n- [x] (for checked checkbox)\n\n> Or you can create a quote like so\n\n```javascript\n// or you can display you code blocks\nconst sayHi = (name) => {\n  return console.log(`Hello ${name}`)\n}\n\nsayHi("Cihan") // Hello Cihan\n```',
+      // eslint-disable-next-line
+      code: "### Example file\n\nYou can create your check list like so:\n- [ ] (for unchecked checkbox)\n- [x] (for checked checkbox)\n\n> Or you can create a quote like so\n\n```javascript\n// or you can display you code blocks\nconst sayHi = (name) => {\n  return console.log(`Hello ${name}`)\n}\n\nsayHi('Cihan') // Hello Cihan\n```",
       tags: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -272,9 +273,13 @@ const EditorProvider = ({ children }) => {
     }
   };
 
-  const handleDelete = async (user) => {
+  const handleDelete = async () => {
     let index = null;
     const tempFiles = { ...state.files };
+    let tempTags = [...state.tags];
+    const deletedParent = tempFiles.items.find(
+      (parent) => parent.id === state.parent
+    );
     const parents = tempFiles.items.filter((item) => item.id !== state.parent);
     if (tempFiles.items.length > 1) {
       index = tempFiles.items.findIndex((item) => item.id === state.parent);
@@ -286,11 +291,14 @@ const EditorProvider = ({ children }) => {
     tempFiles.items = parents;
 
     try {
-      // const temp = state.files.items
-      //   .find((item) => item.id === state.parent)
-      //   .items.find((item) => item.id === state.currentlySelectedFile);
-
-      // const noFile = temp ? true : false;
+      const newTags = [...state.tags];
+      deletedParent.items.forEach((item) => {
+        tempTags.forEach((tag, tagIndex) => {
+          if (tag.items.includes(item.id)) {
+            newTags[tagIndex].items = tag.items.filter((i) => i !== item.id);
+          }
+        });
+      });
 
       let isNoFile = true;
 
@@ -298,7 +306,7 @@ const EditorProvider = ({ children }) => {
         if (file.items.length > 0) isNoFile = false;
       });
 
-      const tempState = { ...state, files: tempFiles };
+      const tempState = { ...state, files: tempFiles, tags: newTags };
 
       updateLocalStorageValue(tempFiles);
       dispatch({ type: APPEND_CHILD, payload: tempState });
@@ -376,7 +384,7 @@ const EditorProvider = ({ children }) => {
     });
 
     try {
-      const noFile = length === 1;
+      const noFile = length === 0;
       const tempState = { ...state, files: tempFiles, noFile, tags: newTags };
 
       let selectedIndex = null;

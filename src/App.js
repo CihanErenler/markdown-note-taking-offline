@@ -17,7 +17,6 @@ function App() {
     localStorageValue,
     setInitialFiles,
     assignCode,
-    codeArray,
     updateCodeArray,
     currentlySelectedFile,
     selectParent,
@@ -27,7 +26,6 @@ function App() {
     updateLocalStorageValue,
     tagsArray,
     updateTagsArray,
-    tags,
     setInitialTags,
     showAllNotes,
   } = useEditorContext();
@@ -77,6 +75,7 @@ function App() {
       updateTagsArray(newTags.concat());
       setInitialTags(newTags.concat());
     }
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
@@ -103,6 +102,7 @@ function App() {
         setNoFile(true);
       }
     }
+    // eslint-disable-next-line
   }, [files]);
 
   return (

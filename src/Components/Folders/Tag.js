@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Amount from "../Sidebar/Amount";
 
 const Tag = ({ tag, action }) => {
-  const { currentlySelectedTag, codeSnapshot } = useEditorContext();
+  const { currentlySelectedTag } = useEditorContext();
   return (
     <StyledSidebarTag
       key={tag.name}
