@@ -49,10 +49,13 @@ const StyledWelcomePage = styled.div`
   position: relative;
   overflow: hidden;
 
+  img.bg {
+    width: 100%;
+  }
+
   .container {
     width: 100%;
-    max-width: 1400px;
-
+    max-width: 1730px;
     padding-top: 40px;
     text-align: center;
     position: absolute;
