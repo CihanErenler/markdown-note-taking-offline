@@ -1,52 +1,27 @@
-.cm-scroller {
-	font-family: "Source Code Pro", monospace !important;
-	font-size: 14px;
-	outline: none;
+.cm-theme,
+.cm-editor {
 	height: 100%;
 }
 
-.cm-scroller:focus {
+.cm-editor.cm-focused {
 	outline: none;
 }
 
-.ͼ2 .cm-gutters {
+.cm-scroller {
+	font-family: "Geist Mono", monospace !important;
+	font-size: var(--editor-font-size, 14px);
+	overflow: auto;
+}
+
+.cm-gutters {
 	background-color: transparent;
 	border-right: none;
 }
 
-.ͼ2 .cm-activeLine {
-	padding-left: 10px;
-}
-
-.cm-gutterElement > span {
-	display: none;
-}
-
-.ͼ4 .cm-line {
-	padding-left: 18px;
-}
-
-.ͼ1.cm-editor {
-	height: 100%;
-}
-
-.ͼ1.cm-editor.cm-focused {
-	outline: none;
-}
-
-.cm-content {
-	height: 100%;
-}
-
-.cm-theme {
-	height: 100%;
-}
-
-img {
-	max-width: 100%;
-	border-radius: 8px;
-}
-
 .cm-lineNumbers {
 	padding-left: 6px;
+}
+
+.cm-line {
+	padding-left: 12px;
 }

@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --paper: 245 246 251;
+    --surface: 255 255 255;
+    --text: 14 18 32;
+    --line: 227 230 240;
+    --mute: 95 105 133;
+    --accent-soft: 238 235 255;
+    --danger: 201 58 48;
+    --focus: 91 70 240;
+    color-scheme: light;
+  }
+
+  .dark {
+    --paper: 11 16 32;
+    --surface: 17 24 48;
+    --text: 231 234 246;
+    --line: 34 43 71;
+    --mute: 140 151 184;
+    --accent-soft: 38 33 92;
+    --danger: 240 106 96;
+    --focus: 150 135 255;
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-paper font-sans text-text antialiased;
+  }
+
+  button {
+    @apply cursor-pointer disabled:cursor-default;
+  }
+
+  ::selection {
+    @apply bg-accent/30 text-text;
+  }
+
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-focus;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}
+
+@layer components {
+  .backdrop {
+    @apply fixed inset-0 z-[9999] flex animate-fade items-center justify-center bg-ink/60 p-4;
+  }
+
+  .popover {
+    @apply absolute z-50 origin-top-right animate-pop rounded-lg border border-line bg-surface shadow-xl shadow-ink/10;
+  }
+
+  .menu-item {
+    @apply block w-full px-3 py-1.5 text-left text-sm hover:bg-paper;
+  }
+
+  .field {
+    @apply w-full rounded-md border border-line bg-surface px-3 text-sm outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/20;
+  }
+
+  .split-flex {
+    @apply flex flex-row;
+  }
+
+  .gutter.gutter-horizontal {
+    @apply cursor-col-resize bg-line transition-colors hover:bg-accent;
+    width: 5px !important;
+  }
+
+  @media print {
+    :root,
+    .dark {
+      --paper: 255 255 255;
+      --surface: 255 255 255;
+      --text: 14 18 32;
+      --line: 227 230 240;
+      --mute: 95 105 133;
+      --accent-soft: 238 235 255;
+      --focus: 91 70 240;
+    }
+
+    .Toastify {
+      display: none;
+    }
+  }
+
+  .md {
+    @apply leading-7;
+    font-size: var(--preview-font-size, 15px);
+  }
+  .md > :first-child {
+    @apply mt-0;
+  }
+  .md h1,
+  .md h2,
+  .md h3,
+  .md h4,
+  .md h5,
+  .md h6 {
+    @apply mb-3 mt-6 font-display tracking-tight font-semibold leading-tight;
+  }
+  .md h1 {
+    @apply text-4xl;
+  }
+  .md h2 {
+    @apply text-3xl;
+  }
+  .md h3 {
+    @apply text-2xl;
+  }
+  .md h4 {
+    @apply text-xl;
+  }
+  .md h5 {
+    @apply text-lg;
+  }
+  .md h6 {
+    @apply text-base;
+  }
+  .md p,
+  .md ul,
+  .md ol,
+  .md blockquote,
+  .md table,
+  .md hr {
+    @apply mb-4;
+  }
+  .md a,
+  .md .wiki-link {
+    @apply text-focus underline underline-offset-2;
+  }
+  .md .wiki-link {
+    @apply cursor-pointer decoration-dotted;
+  }
+  .md .wiki-missing {
+    @apply text-danger underline decoration-dotted underline-offset-2;
+  }
+  .md ul {
+    @apply list-disc pl-6;
+  }
+  .md ol {
+    @apply list-decimal pl-6;
+  }
+  .md ul.contains-task-list {
+    @apply list-none pl-0;
+  }
+  .md li.task-list-item {
+    @apply relative pl-6;
+  }
+  .md input[type="checkbox"] {
+    @apply absolute left-0 top-[0.45em] h-4 w-4 appearance-none rounded border border-mute/60 bg-surface;
+  }
+  .md input[type="checkbox"]:checked {
+    @apply border-accent bg-accent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E");
+    background-size: 12px;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .md hr {
+    @apply border-line;
+  }
+  .md img {
+    @apply max-w-full rounded-md;
+  }
+  .md blockquote {
+    @apply border-l-2 border-accent bg-accent-soft/60 px-4 py-2;
+  }
+  .md blockquote > :last-child {
+    @apply mb-0;
+  }
+  .md :not(pre) > code {
+    @apply rounded bg-text/10 px-1.5 py-0.5 font-mono text-[0.9em];
+  }
+  .md pre:not(:has(> div)) {
+    @apply mb-4 overflow-auto rounded-lg border border-line bg-surface p-3 font-mono text-sm;
+  }
+  .md pre > div {
+    @apply rounded-lg text-sm;
+  }
+  .md table {
+    @apply w-full border-collapse;
+  }
+  .md th,
+  .md td {
+    @apply border border-line px-3 py-2 text-left;
+  }
+  .md th {
+    @apply bg-paper font-semibold;
+  }
+  .md tbody tr:nth-child(even) {
+    @apply bg-paper/60;
+  }
+}
